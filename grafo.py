@@ -27,6 +27,9 @@ class Grafo:
         self.criacao_obstaculos()
         self.destinos()
         self.preenchimento_matriz()
+        self.direcoes = ['esq', 'dir']
+        self.lista_linhas_agentes = [0, 1, 2, 3, 4]
+        self.lista_colunas_agentes = [0, 1, 2, 3, 4,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
     #criação da matriz
     def cria_matriz(self):
@@ -83,9 +86,36 @@ class Grafo:
                             if (i1, j1) in agente.posicoes or (i2, j2) in agente.posicoes:
                                 ocupado = True
                                 break
-                        if not ocupado:
-                            self.agentes.append(Agente(self, (i1, j1), (i2, j2), 'nenhuma'))
+                        if not ocupado: #caso não haja sobreposição
+                            if i2 > i1: #caso esteja na vertical
+                                direcao = 'cima'
+                            else: #caso esteja na horizontal
+                                direcao = random.choice(self.direcoes)
+                                self.agentes.append(Agente(self, (i1, j1), (i2, j2), direcao))
+                                return True
+        return False
                         
+    def adicionar_agente_automaticamente(self):
+        cont_sucesso = 0 #contador de vizinhos adicionados
+        cont_iteracoes = 0
+        while cont_sucesso < 20 and cont_iteracoes < 1000: #20 é o número máximo de agentes possível
+            i1 = random.choice(self.lista_linhas_agentes) #escolhe uma posição aleatória dentro da área
+            j1 = random.choice(self.lista_colunas_agentes)#de agentes
+            possiveis_vizinhos = []
+            if i1 - 1 >= 0:
+                possiveis_vizinhos.append((i1 - 1, j1)) #verifica os limites da matriz e adiciona 
+            if i1 + 1 <= 4:                             #a tupla de possíveis vizinhos
+                possiveis_vizinhos.append((i1 + 1, j1))
+            if j1 - 1 >= 0:
+                possiveis_vizinhos.append((i1, j1 - 1))
+            if j1 + 1 <= 9:
+                possiveis_vizinhos.append((i1, j1 + 1))
+            posicao_escolhida = (random.choice(possiveis_vizinhos)) #escolhe um vizinho aletório
+            i2, j2 = posicao_escolhida                              #e adiciona 
+            cont_iteracoes += 1
+            if self.adicionar_agente(i1, j1, i2, j2) == True:
+                cont_sucesso += 1
+    
     def isPreso(self, i1, j1, i2, j2):
         v1 = self.matriz[i1][j1]
         v2 = self.matriz[i2][j2]
