@@ -31,7 +31,7 @@ class Grafo:
         self.preenchimento_matriz()
         self.direcoes = ['esq', 'dir']
         self.lista_linhas_agentes = [0, 1, 2, 3, 4]
-        self.lista_colunas_agentes = [0, 1, 2, 3, 4,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        self.lista_colunas_agentes = [0, 1, 2, 3, 4,5, 6, 7, 8, 9]
 
     #criação da matriz
     def cria_matriz(self):
@@ -93,8 +93,8 @@ class Grafo:
                                 direcao = 'cima'
                             else: #caso esteja na horizontal
                                 direcao = random.choice(self.direcoes)
-                                self.agentes.append(Agente(self, (i1, j1), (i2, j2), direcao))
-                                return True
+                            self.agentes.append(Agente(self, (i1, j1), (i2, j2), direcao))
+                            return True
         return False
                         
     def adicionar_agente_automaticamente(self):
@@ -149,24 +149,25 @@ class Grafo:
     def dijkstra(self, fonte): #o objetivo da função é retornar o caminho mais curto da fonte até algum vértice da linha de destinos
         #fonte deve ser passado como uma tupla
         fonte_posicao_i, fonte_posicao_j = fonte
-        inicio = self.matriz[fonte_posicao_i][fonte_posicao_j]
 
         #criação de dicionário de distâncias e de predecessores
-        ditancias = {}
+        distancias = {}
         predecessores = {}
 
         #inicialização (initialize-single-source)
         for i in range(self.linhas):
             for j in range(self.colunas):
-                ditancias[(i, j)] = math.inf
+                distancias[(i, j)] = math.inf
                 predecessores[(i, j)] = None
 
-        ditancias[(fonte_posicao_i)(fonte_posicao_j)] = 0 #coloca a distância do vértice fonte como 0
+        distancias[(fonte_posicao_i, fonte_posicao_j)] = 0 #coloca a distância do vértice fonte como 0
         heap = [] #cria a fila de prioridades vazia, que vai considerar a distância (primeiro valor) como prioridade
         heapq.heappush(heap, (0, (fonte_posicao_i, fonte_posicao_j))) #insere na fila de prioridades uma tupla com a distância e as coordenadas da fonte
 
         while heap: #enquanto a fila de prioridades não estiver vazia
             distancia_atual, (i, j) = heapq.heappop(heap) #armazena na distancia_atual e na tupla de posições um elemento retirado da fila de prioridades
+            if distancia_atual > distancias[(i ,j)]: #ignora distancias já minimizadas
+                continue
             v = self.matriz[i][j]
 
             if v.destino == True: #caso chegue na linha de destinos, já retorna
@@ -176,12 +177,27 @@ class Grafo:
                 nova_posicao_i, nova_posicao_j = vizinho.linha, vizinho.coluna
                 nova_distancia = distancia_atual + 1 #incrementa a distância
                 #relaxamento
-                if nova_distancia < ditancias[(nova_posicao_i, nova_posicao_j)]: #caso a nova distância seja menor que a distância atual, atualiza a distância e o pai
-                    ditancias[(nova_posicao_i, nova_posicao_j)] = nova_distancia
+                if nova_distancia < distancias[(nova_posicao_i, nova_posicao_j)]: #caso a nova distância seja menor que a distância atual, atualiza a distância e o pai
+                    distancias[(nova_posicao_i, nova_posicao_j)] = nova_distancia
                     predecessores[(nova_posicao_i, nova_posicao_j)] = (i, j)
                     heapq.heappush(heap, (nova_distancia, (nova_posicao_i, nova_posicao_j)))
 
         return None #retorna vazio caso não exista caminho
         
+    def caminho_agente(self, agente): #essa função retorna o caminho mais curto entre os dois das duas posições do agente
+        p1 = agente.posicoes[0]
+        p2 = agente.posicoes[1]
+        caminho1 = self.dijkstra(p1)
+        caminho2 = self.dijkstra(p2)
+        if caminho1 == None:
+            return caminho2
+        if caminho2 == None:
+            return caminho1
+        
+        if len(caminho1) <= len(caminho2):
+            return caminho1
+        else:
+            return caminho2
+
                 
             
