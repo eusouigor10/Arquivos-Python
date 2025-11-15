@@ -1,4 +1,6 @@
 import random
+import heapq
+import math
 
 class Vertice:
     def __init__(self):
@@ -133,6 +135,53 @@ class Grafo:
                 return False #se se manteve desocupado, há espaço para andar
         
         return True
+    
+    def reconstruir_caminho(self, destino, predecessores): #o objetivo da função é criar uma lista que representa o caminho percorrido
+        caminho = [] 
+        atual = destino #atual começa sendo o último
+
+        while atual != None: #enquanto não chega ao fim do dicionário de predecessores
+            caminho.append(atual) #coloca o vértice na lista de caminhos
+            atual = predecessores[atual] #atualiza o vértice para seu predecessor
+        caminho.reverse() #após completar a lista, inverte ela para ficar do primeiro ao último
+        return caminho
+    
+    def dijkstra(self, fonte): #o objetivo da função é retornar o caminho mais curto da fonte até algum vértice da linha de destinos
+        #fonte deve ser passado como uma tupla
+        fonte_posicao_i, fonte_posicao_j = fonte
+        inicio = self.matriz[fonte_posicao_i][fonte_posicao_j]
+
+        #criação de dicionário de distâncias e de predecessores
+        ditancias = {}
+        predecessores = {}
+
+        #inicialização (initialize-single-source)
+        for i in range(self.linhas):
+            for j in range(self.colunas):
+                ditancias[(i, j)] = math.inf
+                predecessores[(i, j)] = None
+
+        ditancias[(fonte_posicao_i)(fonte_posicao_j)] = 0 #coloca a distância do vértice fonte como 0
+        heap = [] #cria a fila de prioridades vazia, que vai considerar a distância (primeiro valor) como prioridade
+        heapq.heappush(heap, (0, (fonte_posicao_i, fonte_posicao_j))) #insere na fila de prioridades uma tupla com a distância e as coordenadas da fonte
+
+        while heap: #enquanto a fila de prioridades não estiver vazia
+            distancia_atual, (i, j) = heapq.heappop(heap) #armazena na distancia_atual e na tupla de posições um elemento retirado da fila de prioridades
+            v = self.matriz[i][j]
+
+            if v.destino == True: #caso chegue na linha de destinos, já retorna
+                return self.reconstruir_caminho((i, j), predecessores)
+            
+            for vizinho in v.lista_adj: #explora os vizinhos do vértice
+                nova_posicao_i, nova_posicao_j = vizinho.linha, vizinho.coluna
+                nova_distancia = distancia_atual + 1 #incrementa a distância
+                #relaxamento
+                if nova_distancia < ditancias[(nova_posicao_i, nova_posicao_j)]: #caso a nova distância seja menor que a distância atual, atualiza a distância e o pai
+                    ditancias[(nova_posicao_i, nova_posicao_j)] = nova_distancia
+                    predecessores[(nova_posicao_i, nova_posicao_j)] = (i, j)
+                    heapq.heappush(heap, (nova_distancia, (nova_posicao_i, nova_posicao_j)))
+
+        return None #retorna vazio caso não exista caminho
         
                 
             
