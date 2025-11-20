@@ -17,6 +17,7 @@ class Agente:
         self.grafo = grafo
         self.posicoes = (posicao_1, posicao_2)
         self.direcao = direcao
+        self.caminho = None
 
 class Grafo:
 
@@ -195,9 +196,32 @@ class Grafo:
             return caminho1
         
         if len(caminho1) <= len(caminho2):
-            return caminho1
+            return caminho1, p1, p2
         else:
-            return caminho2
+            return caminho2, p2, p1
 
-                
+    def movimentacao_agente(self, agente):
+
+        #se ainda não tem caminho calculado (primeira interação de cada agente), calcula uma vez
+        if agente.caminho is None:
+            caminho, posicao_frente, posicao_tras = self.caminho_agente(agente)
+            agente.caminho = caminho
+
+        caminho = agente.caminho
+
+        #se o caminho acabou
+        if len(caminho) <= 1:
+            return False
+
+        #remove posição atual (frente) e segue para a próxima
+        caminho.pop(0)
+
+        nova_frente = caminho[0] 
+        nova_tras = agente.posicoes[0]
+
+        agente.posicoes = (nova_frente, nova_tras) #atualiza as posições do agente (sensação de movimento)
+        return True
+
+
+
             
