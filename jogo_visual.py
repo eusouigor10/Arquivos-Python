@@ -99,9 +99,8 @@ def desenha_destino(tela, grafo):
     else:
         cor_destino = BRANCO
         w = largura
-        h = CELULA_ALTURA_INT
+        h = CELULA_ALTURA_INT 
         pygame.draw.rect(tela, cor_destino, (0, y, w, h))
-
 
 while True:
     for event in pygame.event.get():
