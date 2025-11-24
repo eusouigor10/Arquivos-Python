@@ -77,13 +77,14 @@ class Grafo:
                         v.lista_adj.append(self.matriz[i][j + 1])
     
     def adicionar_agente(self, i1, j1, i2, j2):
+        agente_a_ser_adicionado = Agente(self, (i1, j1), (i2, j2), None)
         #verifica área da matriz
         if i1 >= 0 and i1 <= 4 and i2 >= 0 and i2 <= 4:
             if j1 >= 0 and j1 <= 9 and j2 >= 0 and j2 <= 9:
                 #verifica adjacência das duas posições que compõem o agente
                 if self.matriz[i1][j1] in self.matriz[i2][j2].lista_adj:
                     #verifica se tem por onde andar
-                    if not self.isPreso(i1, j1, i2, j2):
+                    if not self.isPreso(agente_a_ser_adicionado):
                         ocupado = False #verifica sobreposição
                         for agente in self.agentes:
                             if (i1, j1) in agente.posicoes or (i2, j2) in agente.posicoes:
@@ -119,23 +120,32 @@ class Grafo:
             if self.adicionar_agente(i1, j1, i2, j2) == True:
                 cont_sucesso += 1
     
-    def isPreso(self, i1, j1, i2, j2):
+    def isPreso(self, agente):
+        frente, tras = agente.posicoes
+        i1, j1 = frente
+        i2, j2 = tras
+
         v1 = self.matriz[i1][j1]
         v2 = self.matriz[i2][j2]
-        
-        adjacentes = v1.lista_adj + v2.lista_adj #soma as adjacências
-        ocupado = False
 
-        for adjacente in adjacentes: #verifica se algum adjacente tem a mesma posição de algum agente 
+        adjacentes = v1.lista_adj + v2.lista_adj
+
+        for adj in adjacentes:
+            pos = (adj.linha, adj.coluna)
+
+            #não pode se mover para uma posição ocupada por qualquer outro agente
             ocupado = False
-            for agente in self.agentes:
-                if (adjacente.linha, adjacente.coluna) in agente.posicoes:
+            for outro in self.agentes:
+                if outro is agente:
+                    continue
+                if pos in outro.posicoes:
                     ocupado = True
                     break
-            if ocupado == False:
-                return False #se se manteve desocupado, há espaço para andar
-        
-        return True
+
+            if not ocupado:
+                return False  #achou um caminho disponível
+
+        return True  #todos adjacentes bloqueados
     
     def reconstruir_caminho(self, destino, predecessores): #o objetivo da função é criar uma lista que representa o caminho percorrido
         caminho = [] 
@@ -147,49 +157,67 @@ class Grafo:
         caminho.reverse() #após completar a lista, inverte ela para ficar do primeiro ao último
         return caminho
     
-    def dijkstra(self, fonte): #o objetivo da função é retornar o caminho mais curto da fonte até algum vértice da linha de destinos
-        #fonte deve ser passado como uma tupla
+    def dijkstra(self, fonte, agente_atual=None):
         fonte_posicao_i, fonte_posicao_j = fonte
 
-        #criação de dicionário de distâncias e de predecessores
         distancias = {}
         predecessores = {}
 
-        #inicialização (initialize-single-source)
+        #inicialização
         for i in range(self.linhas):
             for j in range(self.colunas):
                 distancias[(i, j)] = math.inf
                 predecessores[(i, j)] = None
 
-        distancias[(fonte_posicao_i, fonte_posicao_j)] = 0 #coloca a distância do vértice fonte como 0
-        heap = [] #cria a fila de prioridades vazia, que vai considerar a distância (primeiro valor) como prioridade
-        heapq.heappush(heap, (0, (fonte_posicao_i, fonte_posicao_j))) #insere na fila de prioridades uma tupla com a distância e as coordenadas da fonte
+        distancias[(fonte_posicao_i, fonte_posicao_j)] = 0
+        heap = []
+        heapq.heappush(heap, (0, (fonte_posicao_i, fonte_posicao_j)))
 
-        while heap: #enquanto a fila de prioridades não estiver vazia
-            distancia_atual, (i, j) = heapq.heappop(heap) #armazena na distancia_atual e na tupla de posições um elemento retirado da fila de prioridades
-            if distancia_atual > distancias[(i ,j)]: #ignora distancias já minimizadas
+        while heap:
+            distancia_atual, (i, j) = heapq.heappop(heap)
+
+            if distancia_atual > distancias[(i, j)]:
                 continue
+
             v = self.matriz[i][j]
 
-            if v.destino == True: #caso chegue na linha de destinos, já retorna
+            # Se chegou ao destino, termina
+            if v.destino:
                 return self.reconstruir_caminho((i, j), predecessores)
-            
-            for vizinho in v.lista_adj: #explora os vizinhos do vértice
-                nova_posicao_i, nova_posicao_j = vizinho.linha, vizinho.coluna
-                nova_distancia = distancia_atual + 1 #incrementa a distância
-                #relaxamento
-                if nova_distancia < distancias[(nova_posicao_i, nova_posicao_j)]: #caso a nova distância seja menor que a distância atual, atualiza a distância e o pai
+
+            for vizinho in v.lista_adj:
+                nova_posicao_i = vizinho.linha
+                nova_posicao_j = vizinho.coluna
+                pos = (nova_posicao_i, nova_posicao_j)
+
+                #tratar outros agentes como obstáculos
+                ocupado = False
+                for outro in self.agentes:
+                    if outro is agente_atual:
+                        continue  #o próprio agente não conta como obstáculo
+                    if pos in outro.posicoes:
+                        ocupado = True
+                        break
+
+                if ocupado:
+                    continue  #ignora essa célula como se fosse obstáculo
+
+                nova_distancia = distancia_atual + 1
+
+                # Relaxamento
+                if nova_distancia < distancias[(nova_posicao_i, nova_posicao_j)]:
                     distancias[(nova_posicao_i, nova_posicao_j)] = nova_distancia
                     predecessores[(nova_posicao_i, nova_posicao_j)] = (i, j)
                     heapq.heappush(heap, (nova_distancia, (nova_posicao_i, nova_posicao_j)))
 
-        return None #retorna vazio caso não exista caminho
+        return None
+
         
     def caminho_agente(self, agente): #essa função retorna o caminho mais curto entre os dois das duas posições do agente
         p1 = agente.posicoes[0]
         p2 = agente.posicoes[1]
-        caminho1 = self.dijkstra(p1)
-        caminho2 = self.dijkstra(p2)
+        caminho1 = self.dijkstra(p1, agente_atual=agente)
+        caminho2 = self.dijkstra(p2, agente_atual=agente)
         if caminho1 == None:
             return caminho2
         if caminho2 == None:
@@ -203,14 +231,14 @@ class Grafo:
     def movimentacao_agente(self, agente):
 
         #se ainda não tem caminho calculado (primeira interação de cada agente), calcula uma vez
-        if agente.caminho is None:
+        if agente.caminho is None or len(agente.caminho) <= 1:
             caminho, posicao_frente, posicao_tras = self.caminho_agente(agente)
             agente.caminho = caminho
 
         caminho = agente.caminho
 
         #se o caminho acabou
-        if len(caminho) <= 1:
+        if len(caminho) <= 1 or caminho is None:
             return False
 
         #remove posição atual (frente) e segue para a próxima
@@ -220,6 +248,12 @@ class Grafo:
         nova_tras = agente.posicoes[0]
 
         agente.posicoes = (nova_frente, nova_tras) #atualiza as posições do agente (sensação de movimento)
+        
+        # depois de mover este agente, atualizar caminhos dos outros
+        for outro in self.agentes:
+            if outro is not agente:
+                outro.caminho = None
+
         return True
 
 
