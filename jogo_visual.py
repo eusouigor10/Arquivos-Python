@@ -3,6 +3,7 @@ from pygame.locals import *
 import os
 import time
 
+
 class JogoVisual:
 
     def __init__(self, grafo, largura=500, altura=650):
@@ -10,7 +11,7 @@ class JogoVisual:
 
         self.grafo = grafo
         self.largura = largura
-        self.altura = altura
+        self.altura = altu
 
         self.CELULA_LARGURA = largura // grafo.colunas
         self.CELULA_ALTURA = altura // grafo.linhas
@@ -30,7 +31,7 @@ class JogoVisual:
         self.agente_selecionado = None
         self.caminho_verde = []   # novo
 
-    def carregar_imagens(self): # Carregar imagens, se existirem na pasta do projeto
+    def carregar_imagens(self):  # Carregar imagens, se existirem na pasta do projeto
         dir = os.path.dirname(os.path.abspath(__file__))
 
         def load(name):
@@ -45,7 +46,7 @@ class JogoVisual:
         self.img_dest = load("destino.png")
         self.img_carro = load("agente.png")
 
-    def desenhar_fundo(self): # Desenhar fundo ou preencher branco, se não houver imagem
+    def desenhar_fundo(self):  # Desenhar fundo ou preencher branco, se não houver imagem
         if self.img_fundo:
             fundo = pygame.transform.scale(
                 self.img_fundo, (self.largura, self.altura))
@@ -53,7 +54,8 @@ class JogoVisual:
         else:
             self.tela.fill((255, 255, 255))
 
-    def desenhar_saida(self): # Desenhar área de saída ou preencher branco, se não houver imagem
+    # Desenhar área de saída ou preencher branco, se não houver imagem
+    def desenhar_saida(self):
         y = 0
         h = self.CELULA_ALTURA
 
@@ -64,7 +66,8 @@ class JogoVisual:
             pygame.draw.rect(self.tela, (255, 255, 255),
                              (0, y, self.largura, h))
 
-    def desenhar_area_inicio(self): # Desenhar área de início (transparente azul claro)
+    # Desenhar área de início (transparente azul claro)
+    def desenhar_area_inicio(self):
         y = self.inv(4) * self.CELULA_ALTURA
         h = 5 * self.CELULA_ALTURA
 
@@ -72,7 +75,8 @@ class JogoVisual:
         s.fill((150, 200, 255, 90))
         self.tela.blit(s, (0, y))
 
-    def desenhar_obstaculos(self): # Desenhar obstáculos (cones) ou preencher vermelho, se não houver imagem
+    # Desenhar obstáculos (cones) ou preencher vermelho, se não houver imagem
+    def desenhar_obstaculos(self):
         for i in range(self.grafo.linhas):
             for j in range(self.grafo.colunas):
 
@@ -91,7 +95,7 @@ class JogoVisual:
                         pygame.draw.rect(self.tela, (200, 0, 0),
                                          (x, y, self.CELULA_LARGURA, self.CELULA_ALTURA))
 
-    def desenhar_caminho_verde(self): # Desenhar caminho em verde transparente
+    def desenhar_caminho_verde(self):  # Desenhar caminho em verde transparente
         if not self.caminho_verde:
             return
 
@@ -105,7 +109,8 @@ class JogoVisual:
             s.fill(self.VERDE_CAMINHO)
             self.tela.blit(s, (x, y))
 
-    def desenhar_agentes(self): # Desenhar agentes (carros) ou preencher azul, se não houver imagem
+    # Desenhar agentes (carros) ou preencher azul, se não houver imagem
+    def desenhar_agentes(self):
         for agente in self.grafo.agentes:
 
             (i1, j1), (i2, j2) = agente.posicoes
@@ -123,7 +128,7 @@ class JogoVisual:
             w = (max_j - min_j + 1) * self.CELULA_LARGURA
             h = (max_i - min_i + 1) * self.CELULA_ALTURA
 
-            if self.img_carro: # Desenhar carro com imagem, rotacionando se necessário
+            if self.img_carro:  # Desenhar carro com imagem, rotacionando se necessário
                 img = self.img_carro
                 if h > w:
                     img = pygame.transform.rotate(img, -90)
@@ -134,7 +139,8 @@ class JogoVisual:
             else:
                 pygame.draw.rect(self.tela, (0, 0, 255), (x, y, w, h))
 
-    def detectar_clique(self, pos): # Detectar clique em um agente, retornando o agente clicado
+    # Detectar clique em um agente, retornando o agente clicado
+    def detectar_clique(self, pos):
         mx, my = pos
 
         for agente in self.grafo.agentes:
@@ -160,7 +166,8 @@ class JogoVisual:
 
         return None
 
-    def animar_movimento(self, agente): # Animar movimento do agente ao longo do caminho encontrado
+    # Animar movimento do agente ao longo do caminho encontrado
+    def animar_movimento(self, agente):
         caminho, _, _ = self.grafo.caminho_agente(agente)
 
         if not caminho:
@@ -172,22 +179,22 @@ class JogoVisual:
             agente.posicoes = (passo, agente.posicoes[0])
 
             self.atualizar_tela()
-            pygame.time.delay(120) 
+            pygame.time.delay(120)
 
         if agente in self.grafo.agentes:
             self.grafo.agentes.remove(agente)
 
-    def atualizar_tela(self): # Atualizar tela desenhando todos os elementos
+    def atualizar_tela(self):  # Atualizar tela desenhando todos os elementos
         self.desenhar_fundo()
         self.desenhar_saida()
         self.desenhar_area_inicio()
         self.desenhar_obstaculos()
-        self.desenhar_caminho_verde()   
+        self.desenhar_caminho_verde()
         self.desenhar_agentes()
 
         pygame.display.update()
 
-    def executar(self): # Loop principal do jogo, tratando eventos e atualizando a tela
+    def executar(self):  # Loop principal do jogo, tratando eventos e atualizando a tela
 
         while True:
             for e in pygame.event.get():
@@ -195,24 +202,44 @@ class JogoVisual:
                     pygame.quit()
                     return
 
-                if e.type == MOUSEBUTTONDOWN and e.button == 1:
-                    agente = self.detectar_clique(e.pos)
+                # ...
+            if e.type == MOUSEBUTTONDOWN and e.button == 1:
+                agente = self.detectar_clique(e.pos)
 
-                    if agente:
+                if agente:
+                    # 1. Tenta calcular o caminho para o agente clicado
+                    resultado = None
+                    if not self.grafo.isPreso(agente):
+                        resultado = self.grafo.caminho_agente(agente)
 
-                        if self.agente_selecionado == agente:
-                            self.animar_movimento(agente)
+                    caminho = resultado[0] if resultado is not None else None
+
+                    # 2. Lógica de clique
+                    if self.agente_selecionado == agente:
+
+                        if caminho:  # Se houver caminho calculado anteriormente
+                            self.animar_movimento(agente)  # Passa o caminho
                             self.caminho_verde = []
                             self.agente_selecionado = None
                         else:
-                            caminho, _, _ = self.grafo.caminho_agente(agente)
-                            self.caminho_verde = caminho.copy() if caminho else []
-                            self.agente_selecionado = agente
+                            print("Agente preso ou sem caminho possível!")
+                            self.caminho_verde = []
+                    else:
+                        # Seleciona o agente e mostra o caminho (se houver)
+                        self.agente_selecionado = agente
+                        if caminho:
+                            self.caminho_verde = caminho
+                        else:
+                            self.caminho_verde = []
+                            print("Agente preso ou sem caminho possível!")
+                            # Não precisa do 'return' aqui, a tela será atualizada
+# ...
 
             self.atualizar_tela()
             self.clock.tick(60)
 
-if __name__ == "__main__": #Executa o jogo visual se o arquivo for executado diretamente
+
+if __name__ == "__main__":  # Executa o jogo visual se o arquivo for executado diretamente
     from grafo import Grafo
 
     grafo = Grafo()
