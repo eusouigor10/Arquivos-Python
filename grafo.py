@@ -102,7 +102,7 @@ class Grafo:
     def adicionar_agente_automaticamente(self):
         cont_sucesso = 0 #contador de vizinhos adicionados
         cont_iteracoes = 0
-        while cont_sucesso < 20 and cont_iteracoes < 1000: #20 é o número máximo de agentes possível
+        while cont_sucesso <= 40 and cont_iteracoes < 1000: #20 é o número máximo de agentes possível
             i1 = random.choice(self.lista_linhas_agentes) #escolhe uma posição aleatória dentro da área
             j1 = random.choice(self.lista_colunas_agentes)#de agentes
             possiveis_vizinhos = []

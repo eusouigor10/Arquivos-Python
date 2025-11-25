@@ -11,7 +11,7 @@ class JogoVisual:
 
         self.grafo = grafo
         self.largura = largura
-        self.altura = altu
+        self.altura = altura
 
         self.CELULA_LARGURA = largura // grafo.colunas
         self.CELULA_ALTURA = altura // grafo.linhas
