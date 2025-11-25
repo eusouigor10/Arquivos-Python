@@ -10,3 +10,16 @@ A jogabilidade foi definida das seguintes maneiras:
 - Os agentes se movimentam até a linha de chegada sempre considerando o menor caminho possível calculado pelo algoritmo de Dijkstra;
 - A cada movimentação de um agente, as rotas dos outros agentes são recalculadas para sempre procurar o menor caminho;
 - As bibliotecas importadas foram a do Pygame para a criação do jogo visual, a biblioteca Math para a constante infinita utilizada no algoritmo de Dijkstra e também a biblioteca que permite o uso da fila de prioridades, também utilizada em Dijkstra.
+
+
+# Parte visual do Jogo
+
+A parte gráfica do jogo foi feita da seguinte forma:
+
+- A janela do jogo foi feita em formato 650 x 500;
+- Usamos 4 PNG's, tais como: Cone, Rodovia, Agente e Destino;
+- Fizemos funções para carregar as imagens, se uma PNG der erro ao carregar, fica com a cor definida da sua região;
+- Fizemos função de detectar clique do mouse, para "printar" as mensagens de pontuação, carro preso e carro liberado;
+- Usamos também uma função do próprio pygame com delay, assim podemos ver como o carro se movimenta de forma mais lenta;
+- Também temos a função de atualizarTela, que a cada iteração vai atualizando o gráfico.
+
