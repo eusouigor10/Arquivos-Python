@@ -237,7 +237,7 @@ class JogoVisual:
                                 #self.mensagem_temp = "Carro preso! -3 pontos"
                                 self.mensagem_tempo = 90
 
-                                print("Agente preso!")
+                                #print("Agente preso!")
                                 self.caminho_verde = []
 
                         else:
