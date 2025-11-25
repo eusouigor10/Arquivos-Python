@@ -234,7 +234,7 @@ class JogoVisual:
                             else:
                                 # PERDE PONTOS
                                 self.pontos -= 3
-                                self.mensagem_temp = "Carro preso! -3 pontos"
+                                #self.mensagem_temp = "Carro preso! -3 pontos"
                                 self.mensagem_tempo = 90
 
                                 print("Agente preso!")
