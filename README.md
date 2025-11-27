@@ -1,3 +1,7 @@
+# Informações sobre o trabalho
+- Desenvolvido pelos alunos Igor Gabriel Daré Grubisich e Guilherme Henrique de Sousa na matéria de Teoria dos Grafos
+- Para rodar o jogo basta abrir o código no VS Code com a importação da biblioteca Pygame
+
 # Descrição da Jogabilidade do Jogo
 
 A jogabilidade foi definida das seguintes maneiras:
