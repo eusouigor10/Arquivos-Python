@@ -179,6 +179,8 @@ class JogoVisual:
             self.mensagem_temp = "Chegou ao destino! +2 pontos"
             self.mensagem_tempo = 120
 
+        self.grafo.resetar_obstaculos()
+
     def desenhar_pontuacao(self):
         txt = self.fonte.render(f"Pontos: {self.pontos}", True, (66, 245, 239))
         y_pontos = self.altura - txt.get_height() - 10

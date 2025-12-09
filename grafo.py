@@ -79,6 +79,28 @@ class Grafo:
                     if j + 1 < self.colunas and self.matriz[i][j + 1].obstaculo == False:
                         v.lista_adj.append(self.matriz[i][j + 1])
 
+    def resetar_obstaculos(self):
+        #volta todos os obstáculos para nulo (reset)
+        for i in range(self.linhas):
+            for j in range(self.colunas):
+                self.matriz[i][j].obstaculo = False
+    
+        #recria os obstáculos
+        self.criacao_obstaculos()
+
+        #reseta todas as listas de adjacências dos vértices, já que ela leva em consideração ser ou não obstáculo
+        for i in range(self.linhas):
+            for j in range(self.colunas):
+                self.matriz[i][j].lista_adj = []
+        
+        #preenche novamente as listas de adjacências
+        self.preenchimento_matriz()
+
+        #reseta os caminhos para calcular novamente depois
+        for agente in self.agentes:
+            agente.caminho = None
+
+    
     def adicionar_agente(self, i1, j1, i2, j2):
         agente_a_ser_adicionado = Agente(self, (i1, j1), (i2, j2), None)
         # verifica área da matriz
